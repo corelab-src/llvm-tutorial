@@ -2,31 +2,32 @@
 
 ## General Information
 
-This LLVM tutorial is to help you get familiar with LLVM. :)  
+This LLVM tutorial is to help you get familiar with LLVM. :)
 It consists of 8 practices and 1 toy project in total.
 
 * List of Practices
-  * Basic
-      - (1) First Compilation
-      - (2) Control Flow Graph
-  * Optimization 
-      * Analysis
-        - (3) Function Name Printer
-        - (4) Instruction Counter
-        - (5) Call Instruction Counter
-        - (6) Loop Info 
-      * Transformation
-        - (7) Insert inc Function
-        - (8) Dynamic Call Counter
+* Basic
+- (1) First Compilation
+- (2) Control Flow Graph
+* Optimization
+* Analysis
+- (3) Function Name Printer
+- (4) Instruction Counter
+- (5) Call Instruction Counter
+- (6) Loop Info
+* Transformation
+- (7) Insert inc Function
+- (8) Print Even Number
+- (9) Dynamic Call Counter
 
 * List of Toy Projects
-  * Optimization
-    * MemoryProfiler
+* Optimization
+* MemoryProfiler
 
 ## Prerequisite
 ### LLVM Installation
 
-For your convenience, I wrote a Makefile that automatically downloads and builds LLVM 14.0.0.  
+For your convenience, I wrote a Makefile that automatically downloads and builds LLVM 14.0.0.
 Make directory llvm and move Makefile into it.
 And just hit make!
 
@@ -60,8 +61,17 @@ You will get the output of the optimized program.
 
 ## Contact
 
-If you need a solution for the practices, please contact me.  
+<<<<<<< Updated upstream
+If you need a solution for the practices, please contact me.
+<<<<<<< Updated upstream
 Jaeho Lee, ejaho0103/at/yonsei/dot/ac/dot/kr
+=======
+Jaeho Lee, ejaho0103@yonsei.ac.kr
+=======
+If you need a solution for the practices, please contact me.
+Jaeho Lee, ejaho0103/at/yonsei/dot/ac/dot/kr
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 
 ---
 This repository is distributed under the University of Illinois Open Source License.
