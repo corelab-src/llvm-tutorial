@@ -1,5 +1,5 @@
 ifneq ($(LIBRARY),)
-EXTRA_FLAGS=-fpic -fno-rtti
+	EXTRA_FLAGS=-fpic -fno-rtti
 endif
 
 OBJECTS=$(SOURCES:.cpp=.o)
@@ -19,7 +19,7 @@ $(EXECUTABLE): $(OBJECTS)
 
 .PHONY: test run
 
-test: $(TEST).opt.bc 
+test: $(TEST).opt.bc
 
 run: $(TEST).exe
 	./$(TEST).exe
@@ -28,12 +28,11 @@ $(TEST).exe: $(TEST).opt.bc
 	clang $< $(TEST_LIB_FLAG) -o $@
 
 $(TEST).opt.bc: $(TEST).bc $(LIBRARY)
-	opt -load ./$(LIBRARY) -p $(PASSNAME) $< -o $@ 
-	#opt -load ./$(LIBRARY) --enable-new-pm=0 -$(PASSNAME) $< -o $@ 
+	opt -load ./$(LIBRARY) --enable-new-pm=0 -$(PASSNAME) $< -o $@
 	llvm-dis $@
 
 $(TEST).bc: $(TEST).c
-	clang -c -emit-llvm $< -o $@ 
+	clang -c -emit-llvm $< -o $@
 	llvm-dis $@
 
 .PHONY: clean
