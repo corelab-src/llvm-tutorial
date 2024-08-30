@@ -9,13 +9,13 @@ OBJECTS=$(SOURCES:.cpp=.o)
 all: $(LIBRARY) $(EXECUTABLE)
 
 $(LIBRARY): $(OBJECTS)
-	clang++ -shared -o $@ $^
+	clang++ -shared -o $@ $^ -std=c++17
 
 $(EXECUTABLE): $(OBJECTS)
-	clang++ $^ -o $@ `llvm-config --ldflags --libs --system-libs` 
+	clang++ $^ -o $@ `llvm-config --ldflags --libs --system-libs` -std=c++17
 
 %.o: %.cpp
-	clang++ -c $(EXTRA_FLAGS) `llvm-config --cppflags` $^ -o $@
+	clang++ -c $(EXTRA_FLAGS) `llvm-config --cppflags` $^ -o $@ -std=c++17
 
 .PHONY: test run
 
@@ -28,7 +28,8 @@ $(TEST).exe: $(TEST).opt.bc
 	clang $< $(TEST_LIB_FLAG) -o $@
 
 $(TEST).opt.bc: $(TEST).bc $(LIBRARY)
-	opt -load ./$(LIBRARY) -$(PASSNAME) $< -o $@ --enable-new-pm=0
+	opt -load ./$(LIBRARY) -p $(PASSNAME) $< -o $@ 
+	#opt -load ./$(LIBRARY) --enable-new-pm=0 -$(PASSNAME) $< -o $@ 
 	llvm-dis $@
 
 $(TEST).bc: $(TEST).c
