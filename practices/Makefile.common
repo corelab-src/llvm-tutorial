@@ -9,13 +9,13 @@ OBJECTS=$(SOURCES:.cpp=.o)
 all: $(LIBRARY) $(EXECUTABLE)
 
 $(LIBRARY): $(OBJECTS)
-	clang++ -shared -o $@ $^
+	clang++ -shared -o $@ $^ -std=c++17
 
 $(EXECUTABLE): $(OBJECTS)
-	clang++ $^ -o $@ `llvm-config --ldflags --libs --system-libs` 
+	clang++ $^ -o $@ `llvm-config --ldflags --libs --system-libs` -std=c++17
 
 %.o: %.cpp
-	clang++ -c $(EXTRA_FLAGS) `llvm-config --cppflags` $^ -o $@
+	clang++ -c $(EXTRA_FLAGS) `llvm-config --cppflags` $^ -o $@ -std=c++17
 
 .PHONY: test run
 
