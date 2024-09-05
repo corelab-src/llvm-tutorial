@@ -14,29 +14,20 @@ bool LoopInfoPrinter::runOnFunction(Function &F) {
     LoopInfo &LI = getAnalysis< LoopInfoWrapperPass >().getLoopInfo();
     std::queue<Loop *> q;
 
-    for (Loop *L : LI) {
+    for (Loop *L : LI.getLoopsInPreorder()) {
 	q.push(L);
 	dbgs() << "Loop Name: " << L->getName() << "\n";
-	dbgs() << "  Depth of Loop: " << L->getLoopDepth() << "\n";
+	dbgs() << "Loop ID: " << L->getLoopID() << "\n";
+	dbgs() << "Depth of Loop: " << L->getLoopDepth() << "\n";
+	if(L->isInnermost()){
+		dbgs() << "Innermost Depth of Loop: " << L->getLoopDepth() << "\n";
+	} 
 	PHINode *Node = L->getCanonicalInductionVariable();
 	if (Node) {
 	    dbgs() << "  Induction Variable: \n";
 	    Node->dump();
 	}
-
-	while(!q.empty()){
-	  Loop *LL = q.front();
-	  if(LL->isInnermost()){
-		dbgs() << "  Max Depth of Loop: " << LL->getLoopDepth() << "\n";
-	  } 
-	  else{
-		for(Loop *subLoop : LL->getSubLoopsVector()){
-		  q.push(subLoop);
-		}
-	  }	
-	  q.pop();
-	}
-
+	dbgs() << "\n";
   }
     //========--------  Answer --------==========
 
