@@ -3,7 +3,7 @@
 ## General Information
 
 This LLVM tutorial is to help you get familiar with LLVM. :)  
-It consists of 8 practices and 1 toy project in total.
+It consists of 9 practices and 1 toy project in total.
 
 * List of Practices
   * Basic
@@ -65,9 +65,9 @@ You will get the output of the optimized program.
 
 ## Contributers
 
-Seonyeong Heo, I don't know
-Jaeho Lee, ejaho0103/at/yonsei/dot/ac/dot/kr
-Seonyoung Chun, seonyoung/at/yonsei/dot/ac/dot/kr
+Seonyeong Heo, \
+Jaeho Lee, ejaho0103/at/yonsei/dot/ac/dot/kr \
+Seonyoung Chun, seonyoung/at/yonsei/dot/ac/dot/kr \
 Ju Min Lee, jumin/at/yonsei/dot/ac/dot/kr 
 
 ---
