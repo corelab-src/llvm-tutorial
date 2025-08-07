@@ -31,6 +31,10 @@ For your convenience, I wrote a Makefile that automatically downloads and builds
 Make directory llvm and move Makefile into it.
 And just hit make!
 
+**Note**
+Currently, we are not using this feature.
+The repository is updated for LLVM release/19.x, using New PM.
+
 ## Instructions
 
 ### Testing
@@ -59,10 +63,12 @@ $ make run
 ~~~
 You will get the output of the optimized program.
 
-## Contact
+## Contributers
 
-If you need a solution for the practices, please contact me.  
+Seonyeong Heo, I don't know
 Jaeho Lee, ejaho0103/at/yonsei/dot/ac/dot/kr
+Seonyoung Chun, seonyoung/at/yonsei/dot/ac/dot/kr
+Ju Min Lee, jumin/at/yonsei/dot/ac/dot/kr 
 
 ---
 This repository is distributed under the University of Illinois Open Source License.

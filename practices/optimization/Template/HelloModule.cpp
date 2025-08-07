@@ -1,16 +1,26 @@
+#include "HelloModule.h"
 #include "llvm/Support/raw_ostream.h"
 
-#include "HelloModule.h"
-
-#define DEBUG_TYPE "hello"
-
-bool HelloModule::runOnModule(Module &M) {
-  return false;
+PreservedAnalyses HelloModule::run(Module& M, ModuleAnalysisManager& MAM)
+{
+  errs() << "HelloModule Pass called!" << "\n";
+  return PreservedAnalyses::all();
 }
 
-void HelloModule::getAnalysisUsage(AnalysisUsage &AU) const {
-  AU.setPreservesAll();
+extern "C" ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo()
+{
+  return {
+    LLVM_PLUGIN_API_VERSION, "Hello_Pass", LLVM_VERSION_STRING,
+    [](PassBuilder& PB) {
+      PB.registerPipelineParsingCallback(
+          [](StringRef Name, ModulePassManager& MPM,
+              ArrayRef<PassBuilder::PipelineElement>) {
+            if (Name == "hello-module") {
+              MPM.addPass(HelloModule());
+              return true;
+            }
+            return false;
+          });
+    }
+  };
 }
-
-char HelloModule::ID = 0;
-static RegisterPass<HelloModule> X("helloModule", "Hello World Pass ");

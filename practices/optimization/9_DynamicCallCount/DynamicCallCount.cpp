@@ -1,57 +1,55 @@
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/Support/Debug.h"
-#include "llvm/IR/Instructions.h"
-#include "llvm/IR/IRBuilder.h"
 #include "DynamicCallCount.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/Support/Debug.h"
+#include "llvm/Support/raw_ostream.h"
 
-bool DynamicCallCount::runOnModule(Module &M) {
+PreservedAnalyses DynamicCallCount::run(Module& M, ModuleAnalysisManager& MAM)
+{
+  // IVY: This is an answer!!!!!
+  //========--------  Answer --------==========
+  LLVMContext& Context = M.getContext();
 
-    //========--------  Answer --------==========
-    // [IMPORTANT] Go to Runtime directory for checking the runtime function countCall!!!!
-    // [IMPORTANT] Go to Runtime directory for checking the runtime function countCall!!!!
-    // [IMPORTANT] Go to Runtime directory for checking the runtime function countCall!!!!
-    LLVMContext &Context = M.getContext();
+  FunctionCallee CountFunc = M.getOrInsertFunction(
+      "countCall", Type::getVoidTy(Context));
 
-    FunctionCallee CountCall = M.getOrInsertFunction(
-            "countCall", Type::getVoidTy(Context));
-
-    std::vector<Value*> args;
-
-    for(Function &F : M) {
-        for(BasicBlock &BB : F) {
-            for(Instruction &I : BB) {
-                if(CallInst *CI = dyn_cast<CallInst>(&I)) {
-                    if(CI->getCalledFunction()->getName() != "countCall") {
-                        IRBuilder<> Builder(CI);
-                        Builder.CreateCall(CountCall);
-                    }
-                }
-            }
+  for (Function& F : M) {
+    for (BasicBlock& BB : F) {
+      for (Instruction& I : BB) {
+        if (isa<CallInst>(&I)) {
+          CallInst::Create(CountFunc, {}, "", &I);
         }
+      }
     }
+  }
 
-    FunctionCallee PrintResult = M.getOrInsertFunction(
-            "printResult", Type::getVoidTy(Context));
+  FunctionCallee PrintFunc = M.getOrInsertFunction(
+      "printResult", Type::getVoidTy(Context));
 
-    Function *MainFun = M.getFunction("main");
-    if(MainFun) {
-        for(BasicBlock &BB : *MainFun) {
-            for(Instruction &I : BB) {
-                if(ReturnInst *RI = dyn_cast<ReturnInst>(&I)) {
-                    IRBuilder<> Builder(RI);
-                    Builder.CreateCall(PrintResult);
-                }
-            }
-        }
+  for (Instruction& I : M.getFunction("main")->getEntryBlock()) {
+    if (isa<ReturnInst>(&I)) {
+      CallInst::Create(PrintFunc, {}, "", &I);
     }
+  }
+  //========--------  Answer --------==========
 
-    return true;
-    //========--------  Answer --------==========
+  return PreservedAnalyses::none();
 }
 
-void DynamicCallCount::getAnalysisUsage(AnalysisUsage &AU) const {
-    AU.setPreservesAll();
+extern "C" ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo()
+{
+  return {
+    LLVM_PLUGIN_API_VERSION, "Hello_Pass", LLVM_VERSION_STRING,
+    [](PassBuilder& PB) {
+      PB.registerPipelineParsingCallback(
+          [](StringRef Name, ModulePassManager& MPM,
+              ArrayRef<PassBuilder::PipelineElement>) {
+            if (Name == "dyn-call-count") {
+              MPM.addPass(DynamicCallCount());
+              return true;
+            }
+            return false;
+          });
+    }
+  };
 }
-
-char DynamicCallCount::ID = 0;
-static RegisterPass<DynamicCallCount> Y("dyn-call-count", "DynamicCallCount Pass ");

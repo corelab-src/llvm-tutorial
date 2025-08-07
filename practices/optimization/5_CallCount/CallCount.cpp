@@ -1,30 +1,41 @@
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/Support/Debug.h"
-#include "llvm/IR/Instructions.h"
 #include "CallCount.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/Support/Debug.h"
+#include "llvm/Support/raw_ostream.h"
 
-bool CallCount::runOnFunction(Function &F) {
-
-    //========--------  Answer --------==========
-    int count = 0;
-    for(BasicBlock &BB : F) {
-        for(Instruction &I : BB) {
-            if(CallInst *CI = dyn_cast<CallInst>(&I)) {
-                count++;
-            }
-        }
+PreservedAnalyses CallCount::run(Function& F, FunctionAnalysisManager&)
+{
+  // IVY: This is an answer!!!!!
+  //========--------  Answer --------==========
+  int call_count = 0;
+  for (BasicBlock& BB : F) {
+    for (Instruction& I : BB) {
+      if (isa<CallInst>(&I)) {
+        call_count++;
+      }
     }
+  }
+  dbgs() << "Function " << F.getName() << " has " << call_count << " of CallInst.\n";
 
-    dbgs() << "Function Name: " << F.getName() << "\n";
-    dbgs() << "# of CallInst: " << count << "\n";
-    //========--------  Answer --------==========
+  //========--------  Answer --------==========
 
-    return false;
+  return PreservedAnalyses::all();
 }
 
-void CallCount::getAnalysisUsage(AnalysisUsage &AU) const {
-    AU.setPreservesAll();
+extern "C" ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo()
+{
+  return {
+    LLVM_PLUGIN_API_VERSION, "Hello_Pass", LLVM_VERSION_STRING,
+    [](PassBuilder& PB) {
+      PB.registerPipelineParsingCallback(
+          [](StringRef Name, FunctionPassManager& FPM,
+              ArrayRef<PassBuilder::PipelineElement>) {
+            if (Name == "callcount") {
+              FPM.addPass(CallCount());
+              return true;
+            }
+            return false;
+          });
+    }
+  };
 }
-
-char CallCount::ID = 0;
-static RegisterPass<CallCount> Y("callcount", "CallCount Pass ");

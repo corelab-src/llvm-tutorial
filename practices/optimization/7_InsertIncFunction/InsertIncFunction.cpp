@@ -3,32 +3,42 @@
 
 #include "InsertIncFunction.h"
 
-bool InsertIncFunction::runOnModule(Module& M)
+PreservedAnalyses InsertIncFunction::run(Module& M, ModuleAnalysisManager& MAM)
 {
+  // IVY: This is an answer!!!!!
   //========--------  Answer --------==========
   LLVMContext& Context = M.getContext();
-
-  FunctionType* IncFuncType = FunctionType::get(Type::getInt32Ty(Context), Type::getInt32Ty(Context), false);
-  Function* incFunc = Function::Create(IncFuncType, GlobalValue::ExternalLinkage, "inc", &M);
-
-  Argument* arg = incFunc->arg_begin();
-  BasicBlock* entry = BasicBlock::Create(Context, "entry", incFunc);
-  IRBuilder<> Builder(entry);
-  AllocaInst* alloc = Builder.CreateAlloca(Type::getInt32Ty(Context), nullptr);
-  StoreInst* str = Builder.CreateStore(arg, alloc);
-  LoadInst* ld = Builder.CreateLoad(Type::getInt32Ty(Context), alloc);
-  Constant* one = ConstantInt::get(Type::getInt32Ty(Context), 1);
-  Value* result = Builder.CreateAdd(ld, one);
-  Builder.CreateRet(result);
+  FunctionType* IncFuncType = FunctionType::get(
+      Type::getInt32Ty(Context), { Type::getInt32Ty(Context) }, false);
+  Function* IncFunc = Function::Create(IncFuncType, GlobalValue::ExternalLinkage, "inc", &M);
+  BasicBlock* EntryBB = BasicBlock::Create(Context, "entry", IncFunc);
+  IRBuilder<> Builder(EntryBB);
+  Value* input_arg = IncFunc->arg_begin();
+  AllocaInst* Arg = Builder.CreateAlloca(Type::getInt32Ty(Context), nullptr, "arg");
+  Builder.CreateStore(input_arg, Arg);
+  Value* Arg_Load = Builder.CreateLoad(Type::getInt32Ty(Context), Arg, "arg_load");
+  ConstantInt* One = ConstantInt::get(Type::getInt32Ty(Context), 1);
+  Value* Result = Builder.CreateAdd(Arg_Load, One, "result");
+  Builder.CreateRet(Result);
   //========--------  Answer --------==========
 
-  return false;
+  return PreservedAnalyses::none();
 }
 
-void InsertIncFunction::getAnalysisUsage(AnalysisUsage& AU) const
+extern "C" ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo()
 {
-  AU.setPreservesAll();
+  return {
+    LLVM_PLUGIN_API_VERSION, "Hello_Pass", LLVM_VERSION_STRING,
+    [](PassBuilder& PB) {
+      PB.registerPipelineParsingCallback(
+          [](StringRef Name, ModulePassManager& MPM,
+              ArrayRef<PassBuilder::PipelineElement>) {
+            if (Name == "insert-inc-fun") {
+              MPM.addPass(InsertIncFunction());
+              return true;
+            }
+            return false;
+          });
+    }
+  };
 }
-
-char InsertIncFunction::ID = 0;
-static RegisterPass<InsertIncFunction> X("insert-inc-fun", "Hello World Pass ");

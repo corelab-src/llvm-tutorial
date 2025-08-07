@@ -1,13 +1,7 @@
-int a () {
-  return 0;
-}
+int a() { return 0; }
 
-void b () {
-}
+void b() {}
 
-void c () {
-}
+void c() {}
 
-int main () {
-  return 0;
-}
+int main() { return 0; }

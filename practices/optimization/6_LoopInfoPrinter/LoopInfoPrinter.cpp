@@ -1,46 +1,48 @@
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/Support/Debug.h" 
 #include "llvm/IR/Instructions.h"
-//========--------  Answer --------==========
-#include "llvm/Analysis/LoopInfo.h"
-#include <queue>
-//========--------  Answer --------==========
+#include "llvm/Support/Debug.h"
+#include "llvm/Support/raw_ostream.h"
 
+// IVY: Remove this too
 #include "LoopInfoPrinter.h"
+#include "llvm/Analysis/LoopInfo.h"
 
-bool LoopInfoPrinter::runOnFunction(Function &F) {
-
-    //========--------  Answer --------==========
-    LoopInfo &LI = getAnalysis< LoopInfoWrapperPass >().getLoopInfo();
-    std::queue<Loop *> q;
-
-    for (Loop *L : LI.getLoopsInPreorder()) {
-	q.push(L);
-	dbgs() << "Loop Name: " << L->getName() << "\n";
-	dbgs() << "Loop ID: " << L->getLoopID() << "\n";
-	dbgs() << "Depth of Loop: " << L->getLoopDepth() << "\n";
-	if(L->isInnermost()){
-		dbgs() << "Innermost Depth of Loop: " << L->getLoopDepth() << "\n";
-	} 
-	PHINode *Node = L->getCanonicalInductionVariable();
-	if (Node) {
-	    dbgs() << "  Induction Variable: \n";
-	    Node->dump();
-	}
-	dbgs() << "\n";
+PreservedAnalyses LoopInfoPrinter::run(Function& F, FunctionAnalysisManager& FAM)
+{
+  // IVY: This is an answer!!!!!
+  //========--------  Answer --------==========
+  LoopInfo& LI = FAM.getResult<LoopAnalysis>(F);
+  for (Loop* L : LI.getLoopsInPreorder()) {
+    dbgs() << "Loop Name: " << L->getName() << "\n";
+    dbgs() << "Loop ID: " << L->getLoopID() << "\n";
+    dbgs() << "Loop Depth: " << L->getLoopDepth() << "\n";
+    PHINode* Node = L->getCanonicalInductionVariable();
+    if (Node) {
+      dbgs() << "Canonical Induction Variable: " << *Node << "\n";
+      Node->dump();
+    }
+    dbgs() << "\n";
   }
-    //========--------  Answer --------==========
+  dbgs() << "Function: " << F.getName() << " includes " << LI.getLoopsInPreorder().size() << " Loops in total\n";
+  dbgs() << LI.getTopLevelLoops().size() << " are top-level loops\n";
+  //========--------  Answer --------==========
 
-    return false;
+  return PreservedAnalyses::all();
 }
 
-void LoopInfoPrinter::getAnalysisUsage(AnalysisUsage &AU) const {
-
-    //========--------  Answer --------==========
-    AU.addRequired< LoopInfoWrapperPass >();
-    //========--------  Answer --------==========
-    AU.setPreservesAll();
+extern "C" ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo()
+{
+  return {
+    LLVM_PLUGIN_API_VERSION, "Hello_Pass", LLVM_VERSION_STRING,
+    [](PassBuilder& PB) {
+      PB.registerPipelineParsingCallback(
+          [](StringRef Name, FunctionPassManager& FPM,
+              ArrayRef<PassBuilder::PipelineElement>) {
+            if (Name == "loop-info-printer") {
+              FPM.addPass(LoopInfoPrinter());
+              return true;
+            }
+            return false;
+          });
+    }
+  };
 }
-
-char LoopInfoPrinter::ID = 0;
-static RegisterPass<LoopInfoPrinter> Y("loop-info-printer", "LoopInfoPrinter Pass ");
