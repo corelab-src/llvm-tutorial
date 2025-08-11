@@ -1,15 +1,31 @@
-#include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/IRBuilder.h"
+#include "llvm/Support/raw_ostream.h"
 
 #include "InsertIncFunction.h"
 
-bool InsertIncFunction::runOnModule(Module &M) {
-    return false;
+PreservedAnalyses InsertIncFunction::run(Module& M, ModuleAnalysisManager& MAM)
+{
+  //========--------  Answer --------==========
+
+  //========--------  Answer --------==========
+
+  return PreservedAnalyses::none();
 }
 
-void InsertIncFunction::getAnalysisUsage(AnalysisUsage &AU) const {
-    AU.setPreservesAll();
+extern "C" ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo()
+{
+  return {
+    LLVM_PLUGIN_API_VERSION, "Hello_Pass", LLVM_VERSION_STRING,
+    [](PassBuilder& PB) {
+      PB.registerPipelineParsingCallback(
+          [](StringRef Name, ModulePassManager& MPM,
+              ArrayRef<PassBuilder::PipelineElement>) {
+            if (Name == "insert-inc-fun") {
+              MPM.addPass(InsertIncFunction());
+              return true;
+            }
+            return false;
+          });
+    }
+  };
 }
-
-char InsertIncFunction::ID = 0;
-static RegisterPass<InsertIncFunction> X("insert-inc-fun", "Hello World Pass ");

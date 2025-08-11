@@ -1,15 +1,31 @@
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/Support/Debug.h"
-#include "llvm/IR/Instructions.h"
 #include "CallCount.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/Support/Debug.h"
+#include "llvm/Support/raw_ostream.h"
 
-bool CallCount::runOnFunction(Function &F) {
-    return false;
+PreservedAnalyses CallCount::run(Function& F, FunctionAnalysisManager&)
+{
+  //========--------  Answer --------==========
+
+  //========--------  Answer --------==========
+
+  return PreservedAnalyses::all();
 }
 
-void CallCount::getAnalysisUsage(AnalysisUsage &AU) const {
-    AU.setPreservesAll();
+extern "C" ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo()
+{
+  return {
+    LLVM_PLUGIN_API_VERSION, "Hello_Pass", LLVM_VERSION_STRING,
+    [](PassBuilder& PB) {
+      PB.registerPipelineParsingCallback(
+          [](StringRef Name, FunctionPassManager& FPM,
+              ArrayRef<PassBuilder::PipelineElement>) {
+            if (Name == "callcount") {
+              FPM.addPass(CallCount());
+              return true;
+            }
+            return false;
+          });
+    }
+  };
 }
-
-char CallCount::ID = 0;
-static RegisterPass<CallCount> Y("callcount", "CallCount Pass ");

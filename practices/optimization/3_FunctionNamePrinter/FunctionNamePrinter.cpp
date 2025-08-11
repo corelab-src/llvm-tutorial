@@ -1,16 +1,31 @@
-#include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/Debug.h"
+#include "llvm/Support/raw_ostream.h"
 
 #include "FunctionNamePrinter.h"
 
+PreservedAnalyses FunctionNamePrinter::run(Function& F, FunctionAnalysisManager&)
+{
+  //========--------  Answer --------==========
 
-bool FunctionNamePrinter::runOnFunction(Function &F) {
-    return false;
+  //========--------  Answer --------==========
+
+  return PreservedAnalyses::all();
 }
 
-void FunctionNamePrinter::getAnalysisUsage(AnalysisUsage &AU) const {
-    AU.setPreservesAll();
+extern "C" ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo()
+{
+  return {
+    LLVM_PLUGIN_API_VERSION, "Hello_Pass", LLVM_VERSION_STRING,
+    [](PassBuilder& PB) {
+      PB.registerPipelineParsingCallback(
+          [](StringRef Name, FunctionPassManager& FPM,
+              ArrayRef<PassBuilder::PipelineElement>) {
+            if (Name == "fun-name-printer") {
+              FPM.addPass(FunctionNamePrinter());
+              return true;
+            }
+            return false;
+          });
+    }
+  };
 }
-
-char FunctionNamePrinter::ID = 0;
-static RegisterPass<FunctionNamePrinter> Y("fun-name-printer", "Hello World Pass ");
